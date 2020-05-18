@@ -61,7 +61,9 @@ class MealCollection:
         """
         __veggie_meals = []
         for __meal in self.__meals:
-            if __meal.is_veggie() and not __meal.is_special():
+            if __meal.is_veggie() \
+                    and not __meal.is_special() \
+                    and __meal.is_enable():
                 __veggie_meals.append(__meal)
         return __veggie_meals
 
@@ -72,7 +74,7 @@ class MealCollection:
         """
         __special_meals = []
         for __meal in self.__meals:
-            if __meal.is_special():
+            if __meal.is_special() and __meal.is_enable():
                 __special_meals.append(__meal)
         return __special_meals
 
@@ -83,7 +85,7 @@ class MealCollection:
         """
         __normal_meals = []
         for __meal in self.__meals:
-            if not __meal.is_special():
+            if not __meal.is_special() and __meal.is_enable():
                 __normal_meals.append(__meal)
         return __normal_meals
 
@@ -206,6 +208,7 @@ class Meal:
         self.__mandatory_ingredients = []
         self.__is_special = False
         self.__is_veggie_compatible = False
+        self.__is_enable = True
 
     def get(self):
         """
@@ -231,6 +234,13 @@ class Meal:
         """
         return self.__is_special
 
+    def is_enable(self):
+        """
+        :return:
+        :rtype: object
+        """
+        return self.__is_enable
+
     def set_special(self, switch):
         """
 
@@ -246,6 +256,12 @@ class Meal:
         :type switch:
         """
         self.__is_veggie_compatible = switch
+
+    def disable(self):
+        """
+        Disable menu
+        """
+        self.__is_enable = False
 
     def add_mandatory_ingredients(self, _ingredient):
         """
