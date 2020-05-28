@@ -553,7 +553,7 @@ class MealGenerator:
     MealGenerator class
     """
 
-    def __init__(self, _meal_database, meal_limit):
+    def __init__(self, configuration,  meal_database, meal_limit):
         """
 
         :param _meal_database:
@@ -561,11 +561,12 @@ class MealGenerator:
         :param meal_limit:
         :type meal_limit:
         """
-        self.__meal_database = _meal_database
-        self.__meal_limit = meal_limit
-        self.__meal_veggie_limit = 0
-        self.__meal_special_limit = 0
-        self.__meal_collection = MealCollection()
+        self._configuration = configuration
+        self._meal_database = meal_database
+        self._meal_limit = meal_limit
+        self._meal_veggie_limit = 0
+        self._meal_special_limit = 0
+        self._meal_collection = MealCollection()
 
     def get(self):
         """
@@ -573,7 +574,7 @@ class MealGenerator:
         :return:
         :rtype:
         """
-        return self.__meal_collection
+        return self._meal_collection
 
     def is_config_valid(self):
         """
@@ -582,17 +583,17 @@ class MealGenerator:
         :rtype:
         """
         _check = True
-        if self.__meal_limit > self.__meal_database.get_count_meal():
+        if self._meal_limit > self._meal_database.get_count_meal():
             _check = False
 
-        if self.__meal_veggie_limit > self.__meal_database.get_count_veggie_meals():
+        if self._meal_veggie_limit > self._meal_database.get_count_veggie_meals():
             _check = False
 
-        if self.__meal_special_limit > self.__meal_database.get_count_special_meals():
+        if self._meal_special_limit > self._meal_database.get_count_special_meals():
             _check = False
 
-        if self.__meal_veggie_limit + self.__meal_special_limit \
-                > self.__meal_database.get_count_meal():
+        if self._meal_veggie_limit + self._meal_special_limit \
+                > self._meal_database.get_count_meal():
             _check = False
 
         return _check
@@ -606,85 +607,89 @@ class MealGenerator:
         # If the list of meals must be generated from leftovers,
         # then build a list of potential compatible meals
         if _leftovers:
-            _restricted_database = self.__meal_database.restrict_by_ingredients(_leftovers)
+            _restricted_database = self._meal_database.restrict_by_ingredients(_leftovers)
         else:
             _restricted_database = None
 
         # First look for vegetarian meals
-        while self.__meal_collection.get_count_veggie_meals() < self.__meal_veggie_limit:
-            __meal = None
+        while self._meal_collection.get_count_veggie_meals() < self._meal_veggie_limit:
+            _meal = None
 
             # If a list of leftover-compatible meals is available
             if _restricted_database and _restricted_database.get_count_meal() > 0:
                 # Then try to get a random meal from it
-                __meal = _restricted_database.get_random_veggie_meal()
+                _meal = _restricted_database.get_random_veggie_meal()
                 # If a veggie meal was found in the list of leftover-compatible meals
-                if __meal:
+                if _meal:
                     # Remove meal from list of potential meals
-                    _restricted_database.remove_meal(__meal)
+                    if self._configuration.is_debug:
+                        print('DEBUG : ' + str(_restricted_database))
+                    _restricted_database.remove_meal(_meal)
+                    if self._configuration.is_debug:
+                        print('DEBUG : ' + str(_restricted_database))
 
             # If meal is empty (either no leftover or no compatible meal found before)
-            if not __meal:
+            if not _meal:
                 # Then get a random meal
-                __meal = self.__meal_database.get_random_veggie_meal()
+                _meal = self._meal_database.get_random_veggie_meal()
 
-            # If a meal was found and this meal is already part of the list
-            if __meal and __meal not in self.__meal_collection.get():
+            # If a meal was found and this meal is not already part of the list
+            if _meal and _meal not in self._meal_collection.get():
                 # Add it to the meal collection
-                self.__meal_collection.add(__meal)
+                self._meal_collection.add(_meal)
 
                 # Remove meal from list of potential meals
-                self.__meal_database.remove_meal(__meal)
+                self._meal_database.remove_meal(_meal)
 
         # Then look for "special" meals
-        while self.__meal_collection.get_count_special_meals() < self.__meal_special_limit:
-            __meal = None
+        while self._meal_collection.get_count_special_meals() < self._meal_special_limit:
+            _meal = None
 
             # If a list of leftover-compatible meals is available
             if _restricted_database and _restricted_database.get_count_meal() > 0:
                 # Then try to get a random meal from it
-                __meal = _restricted_database.get_random_special_meal()
-                if __meal:
+                _meal = _restricted_database.get_random_special_meal()
+                if _meal:
                     # Remove meal from list of potential meals
-                    _restricted_database.remove_meal(__meal)
+                    _restricted_database.remove_meal(_meal)
 
             # If meal is empty (either no leftover or no compatible meal found before)
-            if not __meal:
+            if not _meal:
                 # Then get a random meal
-                __meal = self.__meal_database.get_random_special_meal()
+                _meal = self._meal_database.get_random_special_meal()
 
-            # If a meal was found and this meal is already part of the list
-            if __meal and __meal not in self.__meal_collection.get():
+            # If a meal was found and this meal is not already part of the list
+            if _meal and _meal not in self._meal_collection.get():
                 # Add it to the meal collection
-                self.__meal_collection.add(__meal)
+                self._meal_collection.add(_meal)
 
                 # Remove meal from list of potential meals
-                self.__meal_database.remove_meal(__meal)
+                self._meal_database.remove_meal(_meal)
 
         # Finally get remaining meals
-        while self.__meal_collection.get_count_meal() < self.__meal_limit:
-            __meal = None
+        while self._meal_collection.get_count_meal() < self._meal_limit:
+            _meal = None
 
             # If a list of leftover-compatible meals is available
             if _restricted_database and _restricted_database.get_count_meal() > 0:
                 # Then try to get a random meal from it
-                __meal = _restricted_database.get_random_normal_meal()
-                if __meal:
+                _meal = _restricted_database.get_random_normal_meal()
+                if _meal:
                     # Then get a random meal
-                    _restricted_database.remove_meal(__meal)
+                    _restricted_database.remove_meal(_meal)
 
             # If meal is empty (either no leftover or no compatible meal found before)
-            if not __meal:
+            if not _meal:
                 # Remove meal from list of potential meals
-                __meal = self.__meal_database.get_random_normal_meal()
+                _meal = self._meal_database.get_random_normal_meal()
 
-            # If a meal was found and this meal is already part of the list
-            if __meal and __meal not in self.__meal_collection.get():
+            # If a meal was found and this meal is not already part of the list
+            if _meal and _meal not in self._meal_collection.get():
                 # Add it to the meal collection
-                self.__meal_collection.add(__meal)
+                self._meal_collection.add(_meal)
 
                 # Remove meal from list of potential meals
-                self.__meal_database.remove_meal(__meal)
+                self._meal_database.remove_meal(_meal)
 
     # Set the number of vegetarian meals we want
     def set_veggie_limit(self, veggie_limit):
@@ -693,7 +698,7 @@ class MealGenerator:
         :param veggie_limit:
         :type veggie_limit:
         """
-        self.__meal_veggie_limit = veggie_limit
+        self._meal_veggie_limit = veggie_limit
 
     # Set the number of special meals we want
     def set_special_limit(self, special_limit):
@@ -702,7 +707,7 @@ class MealGenerator:
         :param special_limit:
         :type special_limit:
         """
-        self.__meal_special_limit = special_limit
+        self._meal_special_limit = special_limit
 
 
 def parse_args():
