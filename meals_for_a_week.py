@@ -622,10 +622,10 @@ class MealGenerator:
                 # If a veggie meal was found in the list of leftover-compatible meals
                 if _meal:
                     # Remove meal from list of potential meals
-                    if self._configuration.is_debug:
+                    if self._configuration.is_debug():
                         print('DEBUG : ' + str(_restricted_database))
                     _restricted_database.remove_meal(_meal)
-                    if self._configuration.is_debug:
+                    if self._configuration.is_debug():
                         print('DEBUG : ' + str(_restricted_database))
 
             # If meal is empty (either no leftover or no compatible meal found before)
