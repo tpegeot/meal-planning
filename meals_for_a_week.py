@@ -9,15 +9,54 @@ import random
 import os
 import datetime
 import locale
+import sys
 import yaml
+
 
 # Define constants
 DEFAULT_CONFIG_FILE_PATH = 'config.yaml'
 DEFAULT_SEASONAL_FILE_PATH = 'seasonal.yaml'
 
-# Define global variable
-debug = False
-verbose = False
+
+# Configuration class
+class Configuration:
+    """
+    Configuration class
+    """
+    def __init__(self):
+        """
+        Init configuration class
+        """
+        self._debug = False
+        self._verbose = False
+
+    def enable_verbose(self):
+        """
+        Enable verbose mode
+        """
+        self._verbose = True
+
+    def enable_debug(self):
+        """
+        Enable debug mode
+        """
+        self._debug = True
+
+    def is_verbose(self):
+        """
+        Return if verbose mode is enable
+        :return:
+        :rtype:
+        """
+        return self._verbose
+
+    def is_debug(self):
+        """
+        Return if debug mode is enable
+        :return:
+        :rtype:
+        """
+        return self._debug
 
 
 # MealCollection class
@@ -190,7 +229,8 @@ class MealCollection:
         """
         _restricted_meal_collection = MealCollection()
         for __meal in self.__meals:
-            if any(_ingredient in __meal.get_mandatory_ingredients() for _ingredient in _ingredients):
+            if any(_ingredient in __meal.get_mandatory_ingredients()
+                   for _ingredient in _ingredients):
                 _restricted_meal_collection.add(__meal)
         return _restricted_meal_collection
 
@@ -310,7 +350,7 @@ class MealDatabase:
             __database_file = open(self.__database_path)
         except OSError as err:
             print("OS error: {0}".format(err))
-            exit(os.EX_OSFILE)
+            sys.exit(os.EX_OSFILE)
         else:
             self.__database_raw_content = yaml.load(__database_file, Loader=yaml.FullLoader)
             __database_file.close()
@@ -323,28 +363,14 @@ class MealDatabase:
         """
         return self.__database_raw_content
 
-    def build(self, _database, _history):
+    def build(self):
         """
-
-        :param _database:
-        :type _database:
-        :param _history:
-        :type _history:
+        Build meal database
         """
-        if _database:
-            _seasoning_database = _database
-        else:
-            _seasoning_database = None
-
-        if _history:
-            _history_database = _history
-        else:
-            _history_database = None
 
         if "meals" in self.__database_raw_content:
             for __meal_record in self.__database_raw_content["meals"]:
                 if "meal" in __meal_record:
-                    seasonal = True
                     __meal = Meal(__meal_record["meal"].lower())
 
                     if "is_veggie_compatible" in __meal_record:
@@ -357,26 +383,7 @@ class MealDatabase:
                         for _mandatory_ingredient in __meal_record["mandatory_ingredients"]:
                             __meal.add_mandatory_ingredients(_mandatory_ingredient.lower())
 
-                            if _seasoning_database and \
-                                _mandatory_ingredient.lower() in _seasoning_database.get_restricted_vegetables() and \
-                                    _mandatory_ingredient.lower() not in _seasoning_database.get_current_vegetables():
-                                seasonal = False
-
-                    # If seasoning database exists and all ingredients are seasonal,
-                    # then meal is add to the db
-                    if _seasoning_database and seasonal:
-                        if _history_database and __meal.get() not \
-                                in _history_database.get().get_meals():
-                            self.__meal_database.add(__meal)
-                        elif not _history_database:
-                            self.__meal_database.add(__meal)
-                    # If seasoning database doesn't, the meal is add to the db
-                    elif not _seasoning_database:
-                        if _history_database and __meal not in\
-                                _history_database.get().get_meals():
-                            self.__meal_database.add(__meal)
-                        elif not _history_database:
-                            self.__meal_database.add(__meal)
+                    self.__meal_database.add(__meal)
 
     def get(self):
         """
@@ -386,14 +393,26 @@ class MealDatabase:
         """
         return self.__meal_database
 
-    def set_meal_collection(self, _meal_collection):
+    def filter(self, _seasoning, _history):
         """
-
-        :param _meal_collection:
-        :type _meal_collection:
+        Filter database
+        :param _seasoning:
+        :type _seasoning:
+        :param _history:
+        :type _history:
         """
-        self.__meal_database = _meal_collection
+        if _seasoning:
+            for _meal in self.get().get():
+                _meal_ingredients = _meal.get_mandatory_ingredients()
+                for _meal_ingredient in _meal_ingredients:
+                    if _meal_ingredient.lower() in _seasoning.get_restricted_vegetables() and \
+                            _meal_ingredient.lower() not in _seasoning.get_current_vegetables():
+                        _meal.disable()
 
+        if _history:
+            for _meal in self.get().get():
+                if _meal.get()  in _history.get().get_meals():
+                    _meal.disable()
 
 class MonthlyVegetables:
     """
@@ -462,7 +481,7 @@ class SeasonalDatabase:
             __database_file = open(self.__database_path)
         except OSError as err:
             print("OS error: {0}".format(err))
-            exit(os.EX_OSFILE)
+            sys.exit(os.EX_OSFILE)
         else:
             self.__database_raw_content = yaml.load(__database_file, Loader=yaml.FullLoader)
             __database_file.close()
@@ -714,18 +733,17 @@ def main():
     """
     Main function
     """
-    # Global variable
-    global verbose
-    global debug
+    # Global configuration
+    configuration = Configuration()
 
     # Argument management
     args = parse_args()
 
     if args.verbose:
-        verbose = True
+        configuration.enable_verbose()
 
     if args.debug:
-        debug = True
+        configuration.enable_debug()
 
     if args.check_config:
         check_config_only = True
@@ -735,7 +753,7 @@ def main():
     elif os.path.exists(DEFAULT_CONFIG_FILE_PATH):
         database_path = DEFAULT_CONFIG_FILE_PATH
     else:
-        exit(os.EX_NOINPUT)
+        sys.exit(os.EX_NOINPUT)
 
     if args.seasonal:
         seasonal_path = args.seasonal
@@ -760,7 +778,7 @@ def main():
         number_of_special_meals = 0
 
     if number_of_veggie_meals + number_of_special_meals > number_of_meals:
-        exit(os.EX_NOINPUT)
+        sys.exit(os.EX_NOINPUT)
 
     if args.history_meals:
         number_of_history_meals = args.history_meals
@@ -804,7 +822,10 @@ def main():
         history_database = None
 
     # Build python object
-    database.build(seasonal_database, history_database)
+    database.build()
+
+    # Filter database
+    database.filter(seasonal_database, history_database)
 
     # Init meal generator
     meal_generator = MealGenerator(database.get(), number_of_meals)
@@ -814,10 +835,10 @@ def main():
         meal_generator.set_special_limit(number_of_special_meals)
 
     if meal_generator.is_config_valid():
-        if verbose:
+        if configuration.is_verbose():
             print('Config valid')
     else:
-        exit(os.EX_NOINPUT)
+        sys.exit(os.EX_NOINPUT)
 
     meal_generator.generate(leftovers)
 
