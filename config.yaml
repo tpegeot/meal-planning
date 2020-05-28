@@ -29,6 +29,8 @@ meals:
   - meal: 'Paella'
   - meal: 'Gratin choux-fleur'
     is_veggie_compatible: True
+    mandatory_ingredients:
+      - Choix-fleur
   - meal: 'Gratin dauphinoix'
     is_veggie_compatible: True
   - meal: 'Choux chinoix sauté'
