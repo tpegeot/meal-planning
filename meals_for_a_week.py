@@ -833,7 +833,7 @@ def main():
     database.filter(seasonal_database, history_database)
 
     # Init meal generator
-    meal_generator = MealGenerator(database.get(), number_of_meals)
+    meal_generator = MealGenerator(configuration, database.get(), number_of_meals)
     if number_of_veggie_meals > 0:
         meal_generator.set_veggie_limit(number_of_veggie_meals)
     if number_of_special_meals > 0:
