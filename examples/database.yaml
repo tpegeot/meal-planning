@@ -1,0 +1,95 @@
+meals:
+  - meal: 'Lasagne'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - sauce tomate
+    group: 'Lasagne'
+  - meal: 'Lasagne épinard'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Épinard
+    group: 'Lasagne'
+  - meal: 'Tartiflette'
+    mandatory_ingredients:
+        - pomme de terre
+  - meal: 'Burgers'
+    is_veggie_compatible: True
+    is_special: True
+  - meal: 'Crepes'
+    is_special: True
+  - meal: 'Lentilles'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - lentilles vertes
+  - meal: 'Spagetti carbo'
+    mandatory_ingredients:
+      - spagetti
+  - meal: 'Spagetti bolo'
+    group: 'Pate'
+  - meal: 'Patte sauce aubergine'
+    group: 'Pate'
+  - meal: 'Raclette'
+    is_special: True
+  - meal: 'Paella'
+  - meal: 'Gratin choux-fleur'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Choux-fleur
+  - meal: 'Gratin dauphinoix'
+    is_veggie_compatible: True
+  - meal: 'Choux chinoix sauté'
+    is_veggie_compatible: True
+  - meal: 'Pizza'
+    is_special: True
+  - meal: 'Croque monsieurs'
+    is_special: True
+    mandatory_ingredients:
+      - Jambon
+  - meal: 'Quiche poireaux'
+    mandatory_ingredients:
+      - Poireau
+    is_veggie_compatible: True
+  - meal: 'Ratatouille'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Tomate
+      - Courgette
+      - Aubergine
+      - Poivron
+  - meal: 'Courgette tartare'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+        - Courgette
+        - Tartare
+  - meal: 'Poivrons sautés'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Poivron
+  - meal: 'Soupe asperges'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Asperge
+  - meal: 'Galette choux-fleur'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Choux-fleur
+  - meal: 'Galette lentilles'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Lentilles
+  - meal: 'Houmous'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - Pois chiche
+  - meal : 'Poêlée de courgettes et pommes de terres'
+    mandatory_ingredients:
+      - pomme de terre
+      - tomate
+      - courgette
+      - lardon
+  - meal: 'Curry de brocoli aux lentilles corail'
+    is_veggie_compatible: True
+    mandatory_ingredients:
+      - lentilles corail
+      - brocoli
+      - lait de coco
