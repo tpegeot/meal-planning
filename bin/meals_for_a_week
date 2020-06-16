@@ -1,11 +1,25 @@
 #!/usr/bin/env python
 
 """
-Meal for a week
+Application : meal for a week
 """
 
 import signal
-from meals_for_a_week.main import exit_gracefully, main
+import os
+import sys
+
+# Workaround to module path to python path when run from dev directory
+# If ../.git is present,
+# it means that we are running the script from the dev directory
+
+# pylint: disable=wrong-import-position
+
+git_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "../.git")
+if os.path.exists(git_path):
+    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "../"))
+from meals_for_a_week.main import exit_gracefully, main# noqa
+
+# pylint: enable=wrong-import-position
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit_gracefully)

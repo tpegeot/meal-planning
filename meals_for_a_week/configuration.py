@@ -1,3 +1,6 @@
+"""
+Meal for a week : configuration class
+"""
 import logging
 import sys
 
@@ -143,4 +146,3 @@ class Configuration:
         Log "message" when log level is ERROR
         """
         self._logger.error(message)
-
