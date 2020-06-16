@@ -1,5 +1,5 @@
 # meals_for_a_week
-Python application to generate a random meal list from existing database
+Python application to generate a random list of meals from an existing database
 
 Meal planning is boring and repetitive but it is useful.
 
